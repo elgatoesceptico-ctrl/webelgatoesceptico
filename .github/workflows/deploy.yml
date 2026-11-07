@@ -1,0 +1,78 @@
+
+name: Publish website with Umami
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare website
+        run: |
+          mkdir _site
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='_site' \
+            ./ _site/
+
+      - name: Add Umami tracking
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          script = '<script defer src="https://cloud.umami.is/script.js" data-website-id="fc79a150-7b48-4252-8b71-8dba00f68c0b"></script>'
+
+          for path in Path("_site").rglob("*.html"):
+              html = path.read_text(encoding="utf-8")
+
+              if "cloud.umami.is/script.js" in html:
+                  continue
+
+              updated, count = re.subn(
+                  r"</head\s*>",
+                  script + "\n</head>",
+                  html,
+                  count=1,
+                  flags=re.IGNORECASE
+              )
+
+              if count:
+                  path.write_text(updated, encoding="utf-8")
+                  print(f"Umami añadido: {path}")
+              else:
+                  print(f"AVISO: no se encontró </head>: {path}")
+          PY
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4

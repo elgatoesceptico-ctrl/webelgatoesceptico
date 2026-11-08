@@ -237,6 +237,7 @@ Array.prototype.forEach.call(document.querySelectorAll("textarea:not(.out),selec
 function say(t){$("msg").textContent=t;setTimeout(function(){$("msg").textContent=""},2500)}
 $("copy").addEventListener("click",function(){
  var t=$("out").value;
+ try{if(window.umami)window.umami.track("generador-copiar-prompt")}catch(e){}
  function fallback(){var o=$("out");o.removeAttribute("readonly");o.focus();o.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}o.setAttribute("readonly","");say(ok?"Copiado":"Selecciona el texto y cópialo a mano")}
  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(function(){say("Copiado")},fallback)}else fallback()});
 $("clear").addEventListener("click",function(){

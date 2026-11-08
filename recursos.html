@@ -38,11 +38,11 @@ mark{background:linear-gradient(transparent 60%,var(--eye) 60%);color:inherit}
 var RECURSOS=[
  {etiqueta:"Herramienta",titulo:"Generador de prompts",
   texto:"Elige tu IA (Claude, ChatGPT, Gemini o Copilot), rellena la fórmula y copia un prompt adaptado. Funciona en tu navegador: no guarda ni envía lo que escribes.",
-  boton:"Abrir el generador",
+  boton:"Abrir el generador",ev:"recursos-abrir-generador",
   url:"generador.html"},
   {etiqueta:"Guía · PDF",titulo:"Cómo pedirle las cosas a cualquier IA",
   texto:"Guía de consulta (Guía 1/3): la fórmula, 8 reglas con ejemplos, un truco por IA, qué hacer cuando sale mal y 5 plantillas. Basada en las guías oficiales.",
-  boton:"Descargar el PDF",
+  boton:"Descargar el PDF",ev:"recursos-descargar-guia-1-pdf",
   url:"guia-1-cualquier-ia.pdf"}
 ];
 var g=document.getElementById("grid");
@@ -52,7 +52,7 @@ RECURSOS.forEach(function(r){
  var h=document.createElement("h2");h.textContent=r.titulo;
  var p=document.createElement("p");p.textContent=r.texto;
  var a=document.createElement("a");a.className="btn";
- if(/^(https:\/\/|[a-z0-9._-]+\.(html|pdf)$)/i.test(r.url)){a.href=r.url;a.rel="noopener";a.textContent=r.boton}
+ if(/^(https:\/\/|[a-z0-9._-]+\.(html|pdf)$)/i.test(r.url)){a.href=r.url;a.rel="noopener";a.setAttribute("data-umami-event",r.ev);a.textContent=r.boton}
  else{a.className+=" off";a.textContent="Próximamente";a.setAttribute("aria-disabled","true")}
  [t,h,p,a].forEach(function(x){c.appendChild(x)});g.appendChild(c)});
 })();
